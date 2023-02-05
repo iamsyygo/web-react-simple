@@ -47,10 +47,10 @@ class App extends React.Component {
     // react 会对 this.setState() 传入的对象进行“合并”
     this.setState({ count: 1 });
 
-    // ⚠️ 在当前函数被调用时, 函数内的 this 指向不一定是当前组件的实例对象(作为 jsx 方法回调默认是 undefined), 所以需要手动绑定 this, 或者使用 react 的实验性语法 class fields handelClick = () => {}
+    // ⚠️ 在当前函数被调用时, 函数内的 this 指向不一定是当前组件的实例对象(作为 jsx 方法回调(指针传递)默认是 undefined), 所以需要手动绑定 this, 或者🟢使用 react 的实验性语法 class fields handelClick = () => {} , 或者🟢z在 JSX 中事件回调中使用箭头函数
     // e.g. setTimeout(this.handelClick, 1000); // Wrong
     // e.g. const app = new App(); const handelClick = app.handelClick; handelClick(); this 指向就不是 App 的实例对象
-
+    // e.g. <button onClick={() => this.handelClick()}>Click me</button>
     // ⚠️ setState 有可能是异步的,出于性能考虑,react 会将多个 setState() 的调用合并成一个,所以在这里不能依赖 this.state.count 的值来更新
     this.setState({ count: this.state.count + 1 }); // Wrong
 
@@ -65,6 +65,32 @@ class App extends React.Component {
     return <div>{('any[]', 'cannot be Object')}</div>;
   }
 }
+```
+
+> Event
+> event 对象与原生的传递方法相似 ,但是 React 的 event 对象是被 React 封装过的
+
+- event.preventDefault() 阻止默认行为(React 需要手动调用阻止默认行为)
+- bind 绑定 this 时需要注意 参数传递问题
+- 当需要传递多个参数时 ,建议使用箭头函数
+
+```js
+// e.g.
+<button onClick={this.handelClick.bind(this, '参数')}>Click me</button>
+
+// 此时 event 参数会被传递到 handelClick 方法中的第二个参数中
+handelClick(arg, event) {
+  console.log(arg); // '参数'
+}
+
+
+// e.g.
+handleClick = function (e) {
+  console.log(this); // undefined
+}
+
+handleChange = handleClick.bind(this, '参数');
+handleChange(event) // 需要在第二个参数中才能获取 event 对象
 ```
 
 > ⚠️ 组件名称必须是首字母大写的驼峰命名 , 例如：`<App />` , 否则 react 会认为是原生的 html 标签
@@ -100,6 +126,27 @@ all in js 🎷：
 - JSX 的自定义组件必须是大写字母开头的驼峰命名法
 - JSX 标签可以是单*闭合标签* ,也可以是双闭合标签
 - JSX 注释使用 { /\* \*/ } ,不能使用 { // } ,否则会被当做是一个表达式
+- JSX 中变量的使用 ,使用 {} 包裹变量
+- JSX 中 class 属性使用 className ,使用 class React 可以识别 ,但是在浏览器中会报错(Warn: Invalid DOM property `class`. Did you mean `className`?) ,因为 class 是 js 中的关键字 ,在 jsx 中使用 class 会被当做是一个表达式(容易造成 babel 转换错误误解)
+- JSX **不支持直接在 style 中使用字符串** ,需要使用对象的变量形式
+
+```js
+// 动态 class
+
+// 1
+const className = `box ${isShow ? 'show' : 'hide'}`;
+
+// 2
+const classNameList = ['box'];
+isShow && classNameList.push('show');
+
+<div className={className}></div>;
+<div className={classNameList}></div>;
+
+// 3 => 第三方库 classnames 📝
+import classNames from 'classnames';
+<div className={classNames('box', { show: isShow })}></div>;
+```
 
 **JSX `<div>{变量}<div/>`中变量的说明 🎯：**
 
@@ -128,7 +175,3 @@ all in js 🎷：
 ### React 实战 🛴
 
 ### React 项目自动化部署
-
-```
-
-```
