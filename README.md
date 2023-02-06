@@ -9,31 +9,36 @@
 
 - 🛵 使用 Node 进行服务端渲染(SSR)
 - 🚁 使用 React Native 开发原生移动应用程序
-- 🎑 2017 年 Facebook 推出的 ReactVR，开发虚拟现实 Web 应用程序
+- 🎑 2017 年 Facebook 推出的 ReactVR, 开发虚拟现实 Web 应用程序
 
 **开发依赖 📝：**
 
 - react：核心代码
 - react-dom：渲染不同平台所需的核心代码
-  - web 端：react-dom 将 jsx 最终渲染成真实的 DOM，显示浏览器中
+  - web 端：react-dom 将 jsx 最终渲染成真实的 DOM, 显示浏览器中
   - native 端：react-dom 将 jsx 最终渲染成原生的移动程序控件
 - babel：jsx 转化 react 代码的工具(jsx 语法转化 React.creatElement)
 
 ```js
+import React from "react";
+import ReactDOM from "react-dom/client"; // 注意导出路径
+
 // Before 18.x
-ReactDOM.render(<div>React</div>, document.querSelector('#root'));
+ReactDOM.render(<div>React</div>, document.querSelector("#root"));
 
 // After 18.x
-const app = ReactDOM.creatRoot(document.querSelector('#root'));
+const app = ReactDOM.creatRoot(document.querSelector("#root"));
 app.render(<div>React</div>);
 ```
 
-**类 class 组件组件 📖：**
+#### **类 class 和函数式组件 📖**
+
+**class 组件：**
 
 ```js
 // 通过 class 并且继承 React.Component 来创建组件
 class App extends React.Component {
-  // ...数据初始化,继承父类调用
+  // ...数据初始化,继承父类调用(可选：如果不需要初始化数据则不需要实现 constructor)
   constructor(props) {
     super(props);
 
@@ -60,15 +65,29 @@ class App extends React.Component {
     }); // Correct
   }
 
-  // ...渲染内容的 render 方法 ,返回的 jsx 就是 react 的虚拟 DOM
+  // ...渲染内容的 render 方法(class 唯一必须要实现的方法) ,返回的 jsx 就是 react 的虚拟 DOM
   render() {
-    return <div>{('any[]', 'cannot be Object')}</div>;
+    return <div>{("any[]", "cannot be Object")}</div>;
   }
 }
 ```
 
+**函数式：**
+
+```js
+// 同样需要大写驼峰命名,不需要继承 React.Component
+function App (){}
+
+// 📝 没有 Hook 下
+- 虽然会被更新挂载, 但是没有生命周期 🥽
+- this 关键字不能指向组件实例(因为没有组件实例)
+- 没有内部状态(State)
+```
+
 > Event
 > event 对象与原生的传递方法相似 ,但是 React 的 event 对象是被 React 封装过的
+>
+> **React 18.x 开始 setState 默认异步 🎢**
 
 - event.preventDefault() 阻止默认行为(React 需要手动调用阻止默认行为)
 - bind 绑定 this 时需要注意 参数传递问题
@@ -91,6 +110,28 @@ handleClick = function (e) {
 
 handleChange = handleClick.bind(this, '参数');
 handleChange(event) // 需要在第二个参数中才能获取 event 对象
+```
+
+**列表渲染 🥽：**
+
+元素的 key 只有放在就近的数组上下文中才有意义。
+比方说, 如果提取出一个 ListItem 组件, 应该把 key 保留在数组中的这个 <ListItem /> 元素上, 而不是放在 ListItem 组件中的 <li> 元素上。
+
+```js
+function ListItem(props) {
+  // 正确！这里不需要指定 key：
+  return <li>{props.value}</li>;
+  // return <li key={ props.value }>{props.value}</li>;
+}
+
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) => (
+    // 正确！key 应该在数组的上下文中被指定
+    <ListItem key={number.toString()} value={number} />
+  ));
+  return <ul>{listItems}</ul>;
+}
 ```
 
 > ⚠️ 组件名称必须是首字母大写的驼峰命名 , 例如：`<App />` , 否则 react 会认为是原生的 html 标签
@@ -118,9 +159,9 @@ all in js 🎷：
 - css in js
 - js in js
 
-**JSX 规范 🎨：**
+#### **JSX 规范 🎨**
 
-- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素)
+- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素或者 Portals),Portals 可以渲染子节点都不同 DOM 子树中
 - 阅读性 ,通常使用 () 包裹多行的 JSX ,并且可以实现 JSX 的换行
 - JSX 元素的属性名必须是驼峰命名法
 - JSX 的自定义组件必须是大写字母开头的驼峰命名法
@@ -134,18 +175,18 @@ all in js 🎷：
 // 动态 class
 
 // 1
-const className = `box ${isShow ? 'show' : 'hide'}`;
+const className = `box ${isShow ? "show" : "hide"}`;
 
 // 2
-const classNameList = ['box'];
-isShow && classNameList.push('show');
+const classNameList = ["box"];
+isShow && classNameList.push("show");
 
 <div className={className}></div>;
 <div className={classNameList}></div>;
 
 // 3 => 第三方库 classnames 📝
-import classNames from 'classnames';
-<div className={classNames('box', { show: isShow })}></div>;
+import classNames from "classnames";
+<div className={classNames("box", { show: isShow })}></div>;
 ```
 
 **JSX `<div>{变量}<div/>`中变量的说明 🎯：**
@@ -159,12 +200,101 @@ import classNames from 'classnames';
 
 **其它说明 🎯：**
 
-##### React 哲学
+#### React 哲学
 
 为什么 React 要选择 JSX ？
 🎤：因为它是一种更加优雅的方式来描述 UI , React 认为 UI(HTML) 代码和业务逻辑(JavaScript)代码是很难分离的(存在耦合关联性高,如某些状态改变时需要更新 UI), 所以 React 选择将 UI 代码和业务逻辑代码放在一起, 通过 JSX 语法来描述 UI , 通过 JavaScript 语法来描述业务逻辑.
 
+#### JSX 的本质与原理
+
+`<div></div>` 通过 babel 转化 `React.createElement('div', null, null)` React.createElement() 方法创建并返回指定类型的新的 React 元素(节点)对象 , 该元素将被 React 用来构建 DOM , 通常不直接使用 React.createElement() , 而是通过 JSX 来编写代码.
+
+`createElement()`源码位于 `react/packages/react/src/ReactElement.js` 中
+
+```js
+export function createElement(type, config, children) {
+  // ...
+
+  // 新的 React 元素(节点)对象
+  return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+}
+```
+
+> **ReactElement 调用返回的是一个对象 , 该对象包含了 React 元素(节点)的所有信息 , 例如：type、key、ref、self、source、owner、props** > **React 利用这些节点对象组成一个 Javascript 对象树(虚拟 DOM ) ,来构建 DOM , 以及更新 DOM**
+
+[dome 测试](https://babeljs.io/repl)
+
+![shadow](./image-20230205195946731.png)
+
+> **其中 /\_#**PURE**\_/ 是 React 16.13 版本新增的语法 , 用于标记 JSX 转换后的代码 , 以便于 React DevTools 识别 ;并且用于告诉 是一个纯函数 ,可以进行 tree-shaking , 以便于减少打包体积**
+
+#### 概念
+
+React 组件相对其它组件更加灵活多样：
+
+- 根据组件的定义方式分为：**函数式和类式**组件 ,18.x 后函数式组件使用较多(Hook,**Hook 弥补了函数式较多缺点**)
+- 根据组件内部是否有状态分为：**无状态（Stateless Component）和有状态（Stateful Component）**组件
+- 根不同职责分为：**展示型（Presentational Component 和容器型（Container Component**组件
+
+> 一般情况下划分 `class` 是有状态的组件,`函数`是无状态组件
+>
+> 函数式维护自己的状态使用：`useState`(Hook)
+
 ### React 18.x 的核心语法
+
+[关于 Eslint 报错的解决方案 `react/jsx-uses-react react/react-in-jsx-scope`](https://ja.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)
+
+使用命令行添加 script 脚本
+
+```sh
+npm pkg set scripts.prepare="husky install"
+```
+
+**插件推荐🪂 **
+
+![image-20230206221725389](./image-20230206221725389.png)
+
+`rcc`:快速生成 class 组件
+
+`rpc`、`rce`...
+
+#### 生命周期
+
+![](./生命周期.png)
+
+--- Mounting 挂载
+
+1、类 constructor 构造函数初始化
+
+2、执行 render 方法
+
+3、组件被挂载到 DOM 执行 componentDidMount(官方建议:在此处发送网络请求、订阅事件)
+
+--- Updating 更新(State 发生修改时)
+
+4、重新执行 render 方法
+
+5、组件被 React 更新挂载到 DOM 执行 componentDidUpdate(prevProps, prevState,snapshot)
+
+--- Unmounting 卸载
+
+6、组件即将被卸载执行 componentWillUnmount 方法(在此处取消订阅)
+
+**不常用的生命周期：**
+
+- getDerivedStateFromProps(nextProps, prevState)：在组件挂载和更新时调用，**返回一个对象来更新 state**，或者返回 null 来不更新任何内容
+- getSnapshotBeforeUpdate(prevProps, prevState)：在最近一次渲染输出（提交到 DOM 节点）之前调用。**它使得组件能在发生更改之前从 DOM 中捕获一些信息（例如，滚动位置）。此生命周期的任何返回值将作为参数传递给 componentDidUpdate()。**
+- shouldComponentUpdate(nextProps, nextState)：**返回一个布尔值，用于指示组件是否应该更新。默认情况下，它返回 true。(控制是否执行 render 方法)**
+
+ [**更多详细生命周期**](https://zh-hans.reactjs.org/docs/react-component.html#the-component-lifecycle)
+
+
+
+#### 组件通讯(嵌套)
+
+
+
+
 
 ### Rudex 状态管理器使用 🥽
 
