@@ -43,9 +43,8 @@ class App extends React.Component {
   // ...数据初始化,继承父类调用(可选：如果不需要初始化数据则不需要实现 constructor)
   constructor(props) {
     // 让父类的构造函数保存好 props, 以便在后面的方法中使用(State 也是如此)
+    // 🚁 React 默认也会帮助处理保存 props, 不执行以下代码也是可以的
     super(props);
-
-    // 🚁 React 默认会帮助处理保存 props, 不执行以上代码也是可以的
 
     // ...通常在这里初始化 state
     // ...通常在这里对组件的方法 this 提前绑定
@@ -92,11 +91,13 @@ function App (){}
 > Event
 > event 对象与原生的传递方法相似 ,但是 React 的 event 对象是被 React 封装过的
 >
+> **React 中另一个不同点是你不能通过返回 false 的方式阻止默认行为。你必须显式的使用 preventDefault**
+>
 > **React 18.x 开始 setState 默认异步 🎢**
 
 - event.preventDefault() 阻止默认行为(React 需要手动调用阻止默认行为)
-- bind 绑定 this 时需要注意 参数传递问题
-- 当需要传递多个参数时 ,建议使用箭头函数
+- **bind 绑定 this 时需要注意 参数传递问题(bind 在多个参数存放位置)**
+- 当需要传递多个参数时 ,建议在 jsx 中使用箭头函数
 
 ```js
 // e.g.
@@ -166,15 +167,15 @@ all in js 🎷：
 
 #### **JSX 规范 🎨**
 
-- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素或者 Portals),Portals 可以渲染子节点都不同 DOM 子树中
-- 阅读性 ,通常使用 () 包裹多行的 JSX ,并且可以实现 JSX 的换行
+- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素或者 Portals),**Portals 可以渲染子节点都不同 DOM 子树中**
+- **阅读性 ,通常使用 () 包裹多行的 JSX ,并且可以实现 JSX 的换行**
 - JSX 元素的属性名必须是驼峰命名法
 - JSX 的自定义组件必须是大写字母开头的驼峰命名法
 - JSX 标签可以是单*闭合标签* ,也可以是双闭合标签
 - JSX 注释使用 { /\* \*/ } ,不能使用 { // } ,否则会被当做是一个表达式
 - JSX 中变量的使用 ,使用 {} 包裹变量
-- JSX 中 class 属性使用 className ,使用 class React 可以识别 ,但是在浏览器中会报错(Warn: Invalid DOM property `class`. Did you mean `className`?) ,因为 class 是 js 中的关键字 ,在 jsx 中使用 class 会被当做是一个表达式(容易造成 babel 转换错误误解)
-- JSX **不支持直接在 style 中使用字符串** ,需要使用对象的变量形式
+- **JSX 中 class 属性使用 className(由于 jsx 与 js 耦合性,class 是关键字)**,使用 class React 可以识别 ,但是在浏览器中会报错(Warn: Invalid DOM property `class`. Did you mean `className`?) ,因为 class 是 js 中的关键字 ,在 jsx 中使用 class 会被当做是一个表达式(容易造成 babel 转换错误误解)
+- JSX **不支持直接在 style 中使用字符串** ,需要使用对象的变量形式(🛟)
 
 ```js
 // 动态 class
@@ -187,7 +188,7 @@ const classNameList = ["box"];
 isShow && classNameList.push("show");
 
 <div className={className}></div>;
-<div className={classNameList}></div>;
+<div className={classNameList}></div>; // 可以是一个数组
 
 // 3 => 第三方库 classnames 📝
 import classNames from "classnames";
@@ -196,12 +197,12 @@ import classNames from "classnames";
 
 **JSX `<div>{变量}<div/>`中变量的说明 🎯：**
 
-- `Number` | `String` | `Array` 类型的变量直接渲染
+- `Number` | `String` | `Array(遍历)` 类型的变量直接渲染
 - `Null` | `Undefined` ｜ `Boolean` 类型的变量不渲染(空 ,如果需要可以转换成字符串 ,toString()、String()、+''等)
-- `Object` 类型的变量会报错(需要转换成字符串 ,JSON.stringify()等), not valid as a React child
+- **`Object` 类型的变量会报错(需要转换成字符串 ,JSON.stringify()等), not valid as a React child**
 
 **JSX 中 {} 说明 🎯：**
-`{}` 中可以放置很多语法 , 例如：变量、表达式、函数、数组、三元表达式、逻辑运算符、条件运算符、函数调用等(Object 会报错)
+`{}` 中可以放置很多语法 , 例如：变量、表达式、函数、数组、三元表达式、逻辑运算符、条件运算符、函数调用等(**Object 会报错**)
 
 **其它说明 🎯：**
 
@@ -212,7 +213,7 @@ import classNames from "classnames";
 
 #### JSX 的本质与原理
 
-`<div></div>` 通过 babel 转化 `React.createElement('div', null, null)` React.createElement() 方法创建并返回指定类型的新的 React 元素(节点)对象 , 该元素将被 React 用来构建 DOM , 通常不直接使用 React.createElement() , 而是通过 JSX 来编写代码.
+`<div></div>` 通过 babel 转化 `React.createElement('div', null, null)` React.createElement() 方法创建并返回指定类型的新的 React 元素(虚拟节点)对象 , 该元素将被 React 用来构建 DOM , 通常不直接使用 React.createElement() , 而是通过 JSX 来编写代码.
 
 `createElement()`源码位于 `react/packages/react/src/ReactElement.js` 中
 
@@ -220,7 +221,7 @@ import classNames from "classnames";
 export function createElement(type, config, children) {
   // ...
 
-  // 新的 React 元素(节点)对象
+  // 新的 React 元素(虚拟节点)对象
   return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
 }
 ```
@@ -305,6 +306,20 @@ class App extends React.Component {
     super(props);
   }
 }
+```
+
+#### 受控输入空值
+
+在[受控组件](https://zh-hans.reactjs.org/docs/forms.html#controlled-components)上指定 `value` 的 prop 会阻止用户更改输入。如果你指定了 `value`，但输入仍可编辑，则可能是你意外地将 `value` 设置为 `undefined` 或 `null`。
+
+下面的代码演示了这一点。（输入最初被锁定，但在短时间延迟后变为可编辑。）
+
+```js
+ReactDOM.createRoot(mountNode).render(<input value="hi" />);
+
+setTimeout(function () {
+  ReactDOM.createRoot(mountNode).render(<input value={null} />);
+}, 1000);
 ```
 
 #### Props 类型 🎷
@@ -431,7 +446,7 @@ class App extends React.Component {
 }
 ```
 
-> 作用域插槽时,可以通过函数传参来实现
+> **作用域插槽时,可以通过函数传参来实现**
 
 #### Context 上下文 🎸
 
@@ -448,7 +463,7 @@ const AppContext = React.createContext(defaultValue);
 
 // value is Object
 // 使用 Provider 包裹 ,共享的组件必须是后代元素 ,value 为共享的数据
-// Provider 可以嵌套使用,内层的 Provider 会覆盖外层的 Provider
+// Provider 可以嵌套使用,内层的 Provider 会覆盖外层的 Provider 值
 // Provider 发生变化时,内部所有消费者都会重新渲染,会导致 Consumer 下所有的组件重新渲染
 <AppContext.Provider value={value}>
   <App />
@@ -466,11 +481,12 @@ class App extends React.Component {
   static contextType = AppContext;
   render() {
     return (
-      <AppContext.Consumer>
+      <BppContext.Consumer>
+        // 其它的 value
         {(value) => {
           return <div>{value}</div>;
         }}
-      </AppContext.Consumer>
+      </BppContext.Consumer>
     );
   }
 }
@@ -536,7 +552,9 @@ emitter.all.clear();
 
 ---
 
-> **🛴 由于每次都需要通过 shouldComponentUpdate 来判断是否需要更新,所以 React 16.3 版本之后提供了 PureComponent 来解决这个问题,它会自动判断是否需要更新,如果不需要更新,就不会触发 render** > **但是 PureComponent 只能对 props 和 state 进行浅比较,如果 props 和 state 中有复杂数据类型,就会出现问题,所以 React 16.6 版本之后提供了 memo 来解决这个问题,它可以对复杂数据类型进行深比较**
+> #### PureComponent、memo
+>
+> **🛴 由于每次都需要通过 shouldComponentUpdate 来判断是否需要更新,所以 React 16.3 版本之后提供了 PureComponent 来解决这个问题,它会自动判断是否需要更新,如果不需要更新,就不会触发 render > 但是 PureComponent 只能对 props 和 state 进行浅比较,如果 props 和 state 中有复杂数据类型,就会出现问题, memo 用于函数组件的判断**
 
 > ---
 
@@ -548,7 +566,7 @@ git clone https://github.com/facebook/react.git
 ```
 
 2、在 `packages/react/index.js` 中可以找到所有的导出
-![image-20230206221725389](./%E6%88%AA%E5%B1%8F2023-02-08%2020.23.12.png)
+![image-20230206221725389](/Volumes/aoe/web-design/pers-code/web-react-simple/截屏 2023-02-08 20.23.12.png)
 
 3、查看 React 源码,搜索 `Component.prototype.setState`
 
@@ -637,7 +655,7 @@ setState({}, (state, props) => {
 setState 的调用不会立即将传入的对象合并触发组件的更新重新渲染组件。这个过程是异步的(**18.x 后默认异步**)，也就是说多次调用 setState 会被合并成一次更新(加入队列)。这样做的好处是：
 
 - 可以提高性能，避免不必要的频繁渲染,引起回流重绘
-- 如果同步更新 state(居于多个 setState 批量更新问题展开),但是还没 执行 render 更新试图,那么 state 和 props 就不是最新的(不能同步),这样就会导致一些问题
+- **如果同步更新 state(居于多个 setState 批量更新问题展开),但是还没 执行 render 更新试图,那么 state 和 props 就不是最新的(不能同步),这样就会导致一些问题(保证 state 没有被更新的时候, 子组件 prop... 保持一致)**
 
 **由于是异步的无法的知何时更新完成,何时书写完成后的逻辑代码,所以 setState 提供了一个回调函数(第二个参数),在更新完成后执行**
 
@@ -659,7 +677,7 @@ this.setState((state, props) => {
 });
 ```
 
-##### 18.x 后同步执行 setState
+##### flushSync 18.x 后同步执行 setState
 
 18.x 前的版本,setState 是同步的
 
@@ -672,9 +690,405 @@ flushSync(() => {
 console.log(this.state.count); // 1
 ```
 
+#### SCU 性能优化
+
+React 更新机制:
+
+`JSX` -> `React.createElement` -> `虚拟节点` -> `虚拟DOM` -> `真实DOM`
+
+更新流程:
+
+`props or state 改变` -> `render重新执行` -> `产生新的虚拟DOM树` -> `新旧虚拟DOM树进行 diff` -> `计算差异进行更新` -> `更新到真实DOM`
+
+如果每次 DOM 对比使用交叉对比方式, 将产生较大的对比次数(O(n 的 3 次方))非常大的性能开销[n 为树的节点数]
+
+于是 React 对此对比方法进行优化, 优化为 O(n):
+
+- 同级节点才进行比较, 不会跨级进行比较(父不会到子层比较)
+- 不同类型的节点产生不同的树结构(父节点不同整棵树重新生成,一般顶层节点较少改变,底层节点变化较多,所以重新渲染不同类型的不会产生较大的性能开销)
+- 开发时,使用 key 来指定哪些节点在不同的渲染下保持稳定(同层比较时发现类型不同,可以通过查找 key 节点尽量复用不需要重新更新)
+
+> ##### 不同类型的节点产生不同的树结构:
+>
+> 当父组件数据变化时,嵌套的所有子组件都会调用 render 重新生成(产生虚拟开销,如果子组件类型不变数据不变不会重新更新到真实 DOM 上)
+>
+> 解决办法：
+>
+> **一：使用 shouldComponentUpdate(SCU) 阻止调用 render**
+>
+> ```js
+> // 最新的props、state(被修改之后的)
+> shouldComponentUpdate(nextProps,nextState){
+>   // this.state 是旧的,需要通过参数获取最新的
+>
+>   // ...对新旧数据进行判断是否需要更新
+>   this.state.xxx === nextState.xxx
+> }
+> ```
+>
+> **二：React 内置了拥有第一种方法的父构造函数类组件【PureComponent、memo】**
+>
+> **🛴 由于每次都需要通过 shouldComponentUpdate 来判断是否需要更新,所以 React 16.3 版本之后提供了 PureComponent 来解决这个问题,它会自动判断是否需要更新,如果不需要更新,就不会触发 render, 但是 PureComponent 只能对 props 和 state 进行浅比较,如果 props 和 state 中有复杂数据类型,就会出现问题**
+>
+> **三：函数组件的性能优化 memo**
+>
+> ```js
+> // 通过 memo 包裹函数组件
+> import { memo } from "react";
+> export const App = memo(function App() {});
+> ```
+
+#### 不可变的力量
+
+> 不要试图直接改变 state 的数据(push、unshift...), 如果需要改变请直接修改覆盖变量的指针(修改对象的引用值)
+>
+> ```js
+> this.state = {
+> a: { xxx: "" },
+> b: [1, 2, 3, 4, 5],
+> };
+> 
+> // 重新浅层拷贝一份并且重新指向地址值, 只对浅层数据进行笔记
+> const a = { ...this.state.a }; // !=this.state.a
+> a["yyy"] = "";
+> this.setState({ a });
+> // 原理
+> shouldComponentUpdate(nextProps,nextState){
+>   shallowEqual(nextProps,this.props) // 浅的比较
+>   shallowEqual(nextState,this.state)
+> }
+> 
+> // 在 PureComponent 中无法引起组件重新渲染
+> this.state.b.push(6)
+> this.setState({b:this.state.b})
+> 
+> // 主要地址值判断
+> ```
+>
+> ###### PureComponent 🍇
+>
+> ```js
+> /**
+>  * 为SCU提供默认浅相等检查的便利组件。
+>  */
+> function PureComponent(props, context, updater) {
+>   this.props = props;
+>   this.context = context;
+>   // 如果一个组件有字符串引用，我们稍后将分配一个不同的对象。
+>   this.refs = emptyObject;
+>   this.updater = updater || ReactNoopUpdateQueue;
+> }
+> 
+> 
+> const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
+> pureComponentPrototype.constructor = PureComponent;
+> // 避免为这些方法进行额外的原型跳转。
+> assign(pureComponentPrototype, Component.prototype);
+> pureComponentPrototype.isPureReactComponent = true; // 给原型添加 isPureReactComponent 属性, 用于渲染判断是否需要比较更新
+> 
+> // 检查组件是否更新, 返回布尔值
+> function checkShouldComponentUpdate(
+>   workInProgress: Fiber,
+>   ctor: any,
+>   oldProps: any,
+>   newProps: any,
+>   oldState: any,
+>   newState: any,
+>   nextContext: any,
+> ) {
+>   const instance = workInProgress.stateNode;
+>   if (typeof instance.shouldComponentUpdate === 'function') {
+>     // 获取组件中的 shouldComponentUpdate 方法进行调用(由开发者提供的)  ---  shouldComponentUpdate(newProps,newState,nextContext)
+>     let shouldUpdate = instance.shouldComponentUpdate(
+>       newProps,
+>       newState,
+>       nextContext,
+>     );
+>     if (__DEV__) {
+>       if (
+>         debugRenderPhaseSideEffectsForStrictMode &&
+>         workInProgress.mode & StrictLegacyMode
+>       ) {
+>         setIsStrictModeForDevtools(true);
+>         try {
+>           // 额外调用该函数以帮助检测副作用。
+>           shouldUpdate = instance.shouldComponentUpdate(
+>             newProps,
+>             newState,
+>             nextContext,
+>           );
+>         } finally {
+>           setIsStrictModeForDevtools(false);
+>         }
+>       }
+>       if (shouldUpdate === undefined) {
+>         console.error(
+>           '%s.shouldComponentUpdate(): Returned undefined instead of a ' +
+>             'boolean value. Make sure to return true or false.',
+>           getComponentNameFromType(ctor) || 'Component',
+>         );
+>       }
+>     }
+> 
+>     return shouldUpdate;
+>   }
+>     
+> 
+>   // 如果是一个纯函数情况下, 通过原型 isPureReactComponent 调用 shallowEqual 进行浅层比较
+>   if (ctor.prototype && ctor.prototype.isPureReactComponent) {
+>     return (
+>       !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
+>     );
+>   }
+> 
+>   return true;
+> }
+> ```
+>
+> ###### shallowEqual 🥦
+>
+> ```js
+> /**
+>  * 通过遍历对象上的键并返回false来执行相等性
+>  * 当任意键的参数值不严格相等时。
+>  * 当所有键的值严格相等时返回true。
+>  */
+> function shallowEqual(objA: mixed, objB: mixed): boolean {
+>   // 对象浅层比较 state 的地址值相同返回 true 不更新
+>   if (is(objA, objB)) {
+>     return true;
+>   }
+> 
+>   if (
+>     typeof objA !== 'object' ||
+>     objA === null ||
+>     typeof objB !== 'object' ||
+>     objB === null
+>   ) {
+>     return false;
+>   }
+> 
+>   const keysA = Object.keys(objA);
+>   const keysB = Object.keys(objB);
+> 
+>   // key length ！== 返回 false 更新
+>   if (keysA.length !== keysB.length) {
+>     return false;
+>   }
+> 
+>   // Test for A's keys different from B.
+>   // 循环比较 state 的 key 是否相等 
+>   for (let i = 0; i < keysA.length; i++) {
+>     const currentKey = keysA[i];
+>     if (
+>       !hasOwnProperty.call(objB, currentKey) ||
+>       !is(objA[currentKey], objB[currentKey])
+>     ) {
+>       return false;
+>     }
+>   }
+> 
+>   // 没有再深层的比较了
+>   return true;
+> }
+> 
+> ```
 
 
-##### SCU 性能优化
+
+#### Ref 获取 DOM
+
+
+
+```js
+// 方式一  ---  不推荐,已废弃
+<div ref='e'><div/>
+this.ref.e
+  
+// 方式二 --- 提前创建 ref
+import {createRef} from 'react'
+this.e = createRef()
+<div ref={this.e}><div/>
+  
+// 方式二 --- 回调方式
+this.e = null
+<div ref={ el => this.e = el }><div/>
+  
+// --- 父子嵌套同样适用 class 组件🍟, 可通过 ref 调用子组件方法 --- //
+
+```
+
+> **由于 函数式 组件没有组件实例, 无法通过以上方法获取组件实例**
+>
+> ```js
+> // 解决
+> 
+> // 通过传参方式传到子组件绑定, 非常不推荐
+> 
+> // 通过高阶函数 forwardRef 传入组件函数作为回调, 并且在第二个参数中接受 ref 对组件内元素进行绑定
+> import { forwardRef } from 'react'
+> const Bpp = forwardRef(function(prop,ref){
+>   return (<div ref={ref}><div/>)
+> })
+> ```
+
+
+
+#### 
+
+#### 受控组件、非受控组件
+
+> 如果指定了 `value`, 但输入仍可编辑，则可能是意外地将 `value` 设置为 `undefined` 或 `null`（输入最初被锁定，但在短时间延迟后变为可编辑）
+
+**如果需要将不可编辑的转化为一个可编辑的, 则需要为元素添加一个 onChang 事件, 进行双向绑定**
+
+**`在一个受控组件中，表单数据是由 React 组件来管理的。另一种是非受控组件，这时表单数据将交由 DOM 节点来处理。`**
+
+```js
+<input value={xxx} onChange={e => this.inputChange(e)} />
+  
+inputChange(e){
+  e.targer.value
+}
+
+
+// 	受控组件
+<input value={xxx} />
+<input value={xxx} onChange={e => this.inputChange(e)}>
+  
+// 	非受控组件
+<input type='text' />
+//  非受控组件默认值 or 获取 value, defaultValue 可以继续输入编辑
+<input type='text' defaultValue={value} ref={input} />
+  
+// 🥁 Array.from
+const data = Array.from( 伪数组, (item)=>item )
+```
+
+
+
+#### 高阶组件 
+
+**高阶函数：需要满足如下条件之一**
+
+- 接受一个或多个函数作为输入, 如map、filter、reduce...
+- 输出一个函数, 如柯里化函数
+
+**高阶组件简(HOC), 参数为组件, 返回值为一个新组件(本质上不是一个组件而是一个函数)**
+
+```js
+function newComponent(cpn){
+  class NewCpn extends PureComponent{
+    // ... cpn 处理
+  }
+  // 🥎 class 类名可以通过 displayName 来修改
+  NewCpn.displayName = "newComponent"
+  return NewCpn
+}
+
+const newComponent = newComponent(<div></div>)
+                                  
+// 高阶组件不属于 React API 的一部份, 它是基于 React 的组合特性而形成的设计模式
+// 它在一些 React 第三方库中非常常见
+- redux 的 connect
+- react-router 的 withRouter
+```
+
+
+
+**使用场景一：注入数据**
+
+```js
+function extInfo(cpn){
+  class NewCpn extends PureComponent{
+    constructor(){
+      super()
+      
+      this.state={
+        info:{
+          a:'xxx',
+          b:'yyy',
+          c:'zzz'
+        }
+      }
+    }
+    render(){
+      // 给传入的组件注入信息
+      return <cpn {...this.state.info} />
+    }
+  }
+  return NewCpn
+}
+
+function App(props){
+  return ...
+}
+function Bpp(props){
+  return ...
+}
+  
+const ExtApp = extInfo(App)
+const ExtBpp = extInfo(Bpp)
+const ExtCpp = extInfo(function(props){
+  return <div>{props.a}</div>
+})
+
+// BUG 当注入后再往组件上添加属性如何操作???
+<ExtCpp value={value} />
+  
+// 解决🥏
+function extInfo(cpn){
+  class NewCpn extends PureComponent{
+    // ...
+    render(){
+      // 再添加一个 props 属性得以解决
+      return <cpn { this.props } {...this.state.info} />
+    }
+  }
+  return NewCpn
+}
+ 
+  
+  
+**案例**
+import { createContext } from 'react'
+const ThemeContext = createContext({color:'red',size:30})
+
+// ... 省略定义 context value
+
+class App extends React.Component {
+  // this.context 获取 value
+  
+  // 使用多个 context 方法
+  render(){
+    return (
+      <ThemeContext.Consumer>
+      {
+        value => <div>{value.color}</div>
+      }
+      </ThemeContext.Consumer>
+    )
+  }
+}
+App.ContextType = ThemeContext // 这种定义方法只能在一个组件中使用一个 context
+
+// 🍶以上做法太过机械重复操作太多, 可以使用 高阶组件 进行优化
+function App（cpn）{
+  return props =>{
+    return (
+      <ThemeContext.Consumer>
+      {
+        value => <cpn {...value} {...props}>{value.color}</cpn>
+      }
+      </ThemeContext.Consumer>
+    )
+  }
+}
+```
+
+## 1517
+
+
 
 ### Rudex 状态管理器使用 🥽
 
