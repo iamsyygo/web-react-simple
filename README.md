@@ -167,7 +167,7 @@ all in js 🎷：
 
 #### **JSX 规范 🎨**
 
-- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素或者 Portals),**Portals 可以渲染子节点都不同 DOM 子树中**
+- JSX 元素(顶层)只能有一个根元素(使用 Fragment 可以包裹多个元素或者 Portals),**Portals 可以渲染子节点在不同 DOM 子树中**
 - **阅读性 ,通常使用 () 包裹多行的 JSX ,并且可以实现 JSX 的换行**
 - JSX 元素的属性名必须是驼峰命名法
 - JSX 的自定义组件必须是大写字母开头的驼峰命名法
@@ -393,11 +393,11 @@ default export App;
 
 [`更多类型校验说明`](https://zh-hans.reactjs.org/docs/typechecking-with-proptypes.html)
 
-#### React 子传父组件的方法 🎸
+#### React 子传父组件的方法 
 
 > React 同样也是通过 Props 来实现子组件向父组件传递数据的,与 Vue 不同的是 React 是通过父组件传递子组件一个回调函数给子组件,子组件通过调用这个回调函数来向父组件传递数据
 
-#### React 插槽 🎸
+#### React 插槽 
 
 > React 没有插槽(Slot)的概念,但是组件 children 属性可以实现类似的功能或者可以通过 Props 来灵活实现插槽的功能
 
@@ -448,7 +448,7 @@ class App extends React.Component {
 
 > **作用域插槽时,可以通过函数传参来实现**
 
-#### Context 上下文 🎸
+#### Context 上下文 
 
 > Context 提供了一种在组件之间共享此类值的方式，而不必显式地通过组件树的逐层传递 props
 > Context 适用于一些数据被很多组件需要访问的情况。例如，当前认证的用户、主题或首选语言。(非父子组件传值)
@@ -508,7 +508,7 @@ function App() {
 }
 ```
 
-##### 事件总线 EventBus 🎸
+##### 事件总线 EventBus
 
 > 事件总线适用于 React、Vue、Angular、小程序等框架
 > 事件总线是一个全局的事件中心,可以在任何地方触发事件,也可以在任何地方监听事件
@@ -541,7 +541,7 @@ emitter.off("eventName", (data) => {
 emitter.all.clear();
 ```
 
-#### setState and createElement - 浅析 🎸
+#### setState and createElement - 浅析 
 
 > **🎲 setState 在数据发生变化时,会触发组件的 render 重新渲染,但是并不会立即触发 render,而是会将 setState 的数据放入队列中,等待合适的时机触发 render(异步的)** > **🛵 Vue 也同理,只不过开发者是看不到 render 的过程的,因为 Vue 会将模板编译成 render 函数,在数据发生变化时,会触发 render 函数重新渲染** > **🚁 React 没有像 Vue 一样对数据进行劫持并在 setter 中触发 render,而是通过 setState 来触发 render,所以 React 需要手动调用 setState 来触发 render 进行更新**
 
@@ -928,8 +928,10 @@ this.e = null
 > // 通过高阶函数 forwardRef 传入组件函数作为回调, 并且在第二个参数中接受 ref 对组件内元素进行绑定
 > import { forwardRef } from 'react'
 > const Bpp = forwardRef(function(prop,ref){
->   return (<div ref={ref}><div/>)
+> return (<div ref={ref}><div/>)
 > })
+> 
+> <Bpp ref = {xxx}/>
 > ```
 
 
@@ -974,7 +976,7 @@ const data = Array.from( 伪数组, (item)=>item )
 - 接受一个或多个函数作为输入, 如map、filter、reduce...
 - 输出一个函数, 如柯里化函数
 
-**高阶组件简(HOC), 参数为组件, 返回值为一个新组件(本质上不是一个组件而是一个函数)**
+**高阶组件简(HOC), 参数为组件, 返回值为一个新组件(本质上不是一个组件而是一个函数), 如 memo、forwardRef**
 
 ```js
 function newComponent(cpn){
@@ -996,7 +998,7 @@ const newComponent = newComponent(<div></div>)
 
 
 
-**使用场景一：注入数据**
+**使用场景一：注入数据、数据共享**
 
 ```js
 function extInfo(cpn){
@@ -1086,7 +1088,326 @@ function App（cpn）{
 }
 ```
 
-## 1517
+
+
+**使用场景二：**
+
+```js
+// 使用高阶组件对组件进行鉴权, 统一在高阶组件内部进行鉴权
+function AuthOfCpn(cnp){
+  // 获取 token 等权限标识
+  const isToken = ...
+  return props=>(<div>{isToken?<cnp {...props} /> : '请先登陆'}</div>)
+}
+```
+
+
+
+> ##### forceUpdate(不推荐)
+>
+>  🍰 **可使用`this.forceUpdate()`强制刷新页面**
+
+
+
+**使用场景三：生命周期劫持**
+
+```js
+// 获取组件渲染所需的时间
+class App extends React.PureComponent {
+  // 组件即将被挂载之前执行(通常不建议使用)
+  componentWillMount(){
+    // 记录时间戳
+  }
+  // 同=于, UNSAFE_componentWillMount(16.3被弃用)
+  
+  componentDidMount(){
+    // 计算时间差
+  }
+  render(){
+    return (
+      
+    )
+  }
+}
+```
+
+> 早起 React 也有提供 Mixin 进行复用的, 但是目前已经不建议使用, 可能会相互依赖相互耦合不利于代码维护、相互冲突方法属性, 处理麻烦
+
+
+
+> 由于 Mixin 的缺点, 可以使用 **高阶组件 or Hook** 代替, 当然高阶组件也有些缺点
+>
+> - 需要在原组件(参数组件)基础上进行包裹嵌套返回, 如果大量使用高阶组件, 就会产生非常多的嵌套关系, 这让调试变得非常困难
+> - 高阶组件可以劫持 Props, 在不遵守约定情况下, 可能会造成冲突
+
+> **Hook 的出现解决以上诸多问题, 是开创性的, 如 this 指向、高阶组件嵌套问题**
+
+
+
+#### Portals
+
+> **将内容渲染独立于父组件, 甚至是独立于当前挂载到真实的 DOM(默认挂载在 id = ‘root’ 的 DOM 上), 可以渲染子节点在不同 DOM 树中(如 root 之外的 DOM)**
+
+```js
+// 在 Vue3 中使用 teleport 实现
+
+// Reac...
+<div id='root'></div>
+<div id='system'></div>
+
+
+import React from "react";
+import ReactDOM from "react-dom/client"; // 注意导出路径Portals
+import {Portals} from "react-dom;
+
+
+// After 18.x
+const app = ReactDOM.creatRoot(document.querSelector("#root"));
+app.render(<App />);
+class App extends React.PureComponent {
+  
+  render(){
+    return (<div>
+            <h1>ROOT</h1>		
+            {createPortals(
+                <h2>ROOT</h2>,
+                document.querSelector("#system")
+            )}
+						</div>)
+  }
+}
+```
+
+
+
+#### Fragment 片段
+
+> 用于代替最外层包裹的 div(此 div 是多余不需要的, 只不过在返回时如果是多层兄弟 节点时需要进行包裹), Fragment不会渲染到真实的 DOM 中, 相当于 Vue Template
+>
+> ```js
+> render(){
+>     return (<Fragment>
+>             <h1>ROOT</h1>		
+>             {createPortals(
+>                 <h2>ROOT</h2>,
+>                 document.querSelector("#system")
+>             )}
+> 						</Fragment>
+> 		)
+> }
+>   
+> // Vue3 中在 template 书写代码时不需要一个根节点同样也是使用 Fragment, 当发现组件中没有根包裹时, Vue 使用 Fragment 对组件进行包裹
+> ```
+
+> **Fragment 语法糖🍬：直接使用空的标签进行包裹也是一样的 `<>...</>`**
+>
+> **注意⚠️：(Vue3 在 transition 组件中使用会出现问题), 不是所有地方都能使用 Fragment 的语法糖, 如需要在 <></> 上绑定属性 key...**
+
+
+
+#### 严格模式 StrictMode
+
+> **StrictMode 是一个组件**用来突出显示应用程序潜在的问题的根据, 与 Fargment 一样, 它不会渲染任何 可见的 UI, **它为其后代元素触发额外的检查和警告**, **仅在开发模式下运行**
+>
+> ```js
+> ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+>   <React.StrictMode>
+>     <App />
+>   </React.StrictMode>
+> );
+> 
+> // 当开启之后如在代码中使用 UNSAFE_componentWillMount(16.3被弃用)、findDomNode, 会在控制台中报警告
+> ```
+>
+> **在 StrictMode 下, render() 将执行两次,并且在两次渲染之间,所有的生命周期都会被调用两次。这使得在开发模式下更容易发现潜在的问题。但是,请注意,这些生命周期方法仍然只会被调用一次。**
+>
+> 在 18.x 后, 安装 dev 开发根据后, StrictMode 下第二次显示的输出呈现灰色
+>
+> - 识别不安全的生命周期
+> - 有关使用过时字符串ref API的警告(findDOMNode)
+> - 有关使用过时findDOMNode API的警告
+> - 检测意外的副作用
+> - 检测过时的context API
+
+
+
+#### 过渡动画
+
+使用如 `react-transition-group` 库[体积小]完成过渡动画(前身是 React 为开发者提供的动画插件:`react-addons-css-transition-group`, 方便实现组件的 入场 和 出场 动画
+
+其它:`react-Motion`、`react Spring`
+
+```js
+// react-transition-group 主要包含四个组件：
+- Transition：与平台无关、不一定要结合 Css
+- CssTransition：通常前端开发使用此组件, 基于 Transition 构建的
+- SwitchTransition：两个组件显示隐藏切换时使用此组件, 相当于 Vue 的 modes 属性
+- TransitionGroup：将多个组件包裹其中,一般应用于列表中
+```
+
+
+
+###### CssTransition
+
+- in 控制显示隐藏
+- className 动画类名
+- timeout 动画执行时间, 必填 - 决定何时删除添加过渡类名, 过渡时间由 css 控制, 可以是一个对象 { appear:xxx,enter:xxx,... }
+- unmountOnExit 组件隐藏时是否对组件进行卸载, 必填
+- key 配合 SwitchTransition 使用时必填
+
+钩子函数：
+
+- onEnter 加入之前
+- onEntering 正在执行加入动画
+- onEntered 执行加入结束
+- onExit 开始离开之前
+- onExiting ...
+- onExited ...
+
+状态：appear、enter、exit
+
+三种状态:
+
+1、开始状态：对应类 -appear、-enter、exit
+
+2、执行动画：对应类 -appear-active、-enter-active、-exit-active
+
+3、执行结束：对应类 -appear-done、-enter-done、-exit-active
+
+```css
+// 加入时的动画 in = true
+.class-enter{
+  opacity:0
+}
+
+.class-enter-active{
+  opacity:1;
+  transition:opacity 1s;
+}
+// 以上两步是核心
+
+.class-enter-done{
+  // ...
+}
+
+// 推出时的动画 in = false
+.class-active{
+  opacity:1
+}
+
+.class-enter-active{
+  opacity:0;
+  transition:opacity 1s;
+}
+// 以上两步是核心
+
+.class-active-done{
+  // ...
+}
+```
+
+
+
+**解决不关闭 StrictMode 下 CssTransition 报 findDOMNode 错误(其它组件同理)**
+
+```js
+this.refValue = createRef()
+
+<CssTransition
+// ...
+nodeRef={ this.refValue } // 赋值到组件的 nodeRef
+>
+  <div ref={ this.refValue }></div> // 绑定 ref
+</CssTransition>
+```
+
+
+
+###### SwitchTransition
+
+与 Vue 的 mode 属性相似, 控制两个组件之间的切换, 先出后进(out-in) or 先进后出(in-out), 需要包裹 CSSTransition 使用
+
+```js
+ render() {
+    const { logo } = this;
+    const { isGo } = this.state;
+    const { slot } = this.props;
+    console.log(slot);
+
+    return (
+      <>
+        <button onClick={this.handleState}>{isGo ? "NO" : "OFF"}</button>
+        <SwitchTransition mode="out-in">
+          // 基于 CSSTransition, CSSTransition key 必填一个唯一的
+          // 不需要设置 in
+          <CSSTransition nodeRef={logo} key={isGo ? "ok" : "fail"} classNames="with" timeout={2000}>
+            <div ref={logo}>
+              <div>{isGo ? slot.react() : slot.vite()}</div>
+              <h1>{isGo ? "React" : "Vite"}</h1>
+            </div>
+          </CSSTransition>
+        </SwitchTransition>
+      </>
+    );
+  }
+```
+
+```js
+// memo 高阶组件第二参数是个函数, 同样可以自定义判断是否需要更新
+function memo<Props>(
+  type: React$ElementType,
+  compare?: (oldProps: Props, newProps: Props) => boolean,
+) 
+
+// 关于组件更新的, 正确应该在函数外部定义🍓
+const slot = {
+  vite: "/vite.svg",
+  react: reactLogo,
+};
+function App() {
+  const [count, setCount] = useState(0);
+	// 这里同理, 函数重新执行, slot 重新修改地址值
+  return (
+    <div className="App">
+      <Home slot={/* 这里不能直接书写一个对象, 否则当 App 更新, slot 重新被赋值, 地址值同样改变, 子组件同样更新 */}></Home>
+
+    </div>
+  );
+}
+```
+
+
+
+###### TransitionGroup
+
+TransitionGroup 默认最终渲染出来的是一个 div 标签, 它的子组件可以是 `CSSTransition` 或 `Transition` 等过渡组件
+
+属性：
+
+- component 定义 TransitionGroup 渲染成什么元素
+
+```js
+render() {
+  return (
+      <>
+        <button onClick={this.handleAdd}>新增</button>
+        <button onClick={this.handleDelete}>删除</button>
+        <TransitionGroup>
+          {this.state.list.map(({ name = "", id = "" }, index: number) => {
+            return (
+              <CSSTransition timeout={2000} classNames="group" key={id}>
+                // 在 li 里定义 transitionDelay 其值为当前元素的索引乘以 100 毫秒，表示前一个元素完成动画后，等待一定时间后再开始动画
+                <li style={{ transitionDelay: `${100 * index}ms` }}>
+                  {name} - {id}
+                </li>
+              </CSSTransition>
+            );
+          })}
+        </TransitionGroup>
+      </>
+    );
+  }
+```
 
 
 

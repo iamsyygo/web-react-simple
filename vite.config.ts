@@ -16,14 +16,16 @@ export default defineConfig({
     alias: {
       "@": "/src",
     },
+    extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
   },
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://localhost:3000',
-  //       changeOrigin: true,
-  //       rewrite: path => path.replace(/^\/api/, ''),
-  //     },
-  //   },
-  // },
+  server: {
+    host: true,
+    // proxy: {
+    //   "/api": {
+    //     target: "http://localhost:3000",
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ""),
+    //   },
+    // },
+  },
 });

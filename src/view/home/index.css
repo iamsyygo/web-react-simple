@@ -1,0 +1,58 @@
+.with-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.with-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease;
+}
+
+
+.with-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.with-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.5s ease;
+}
+
+.group-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.group-appear {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.group-appear-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease;
+}
+li{
+  transition: all 0.5s ease;
+  transition-duration: 1s;
+}
+.group-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  /* ease:表示动画以低速开始，然后加快，在结束前变慢。 */
+  transition: all 0.5s ease;
+}
+
+.group-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.group-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.5s ease;
+}
