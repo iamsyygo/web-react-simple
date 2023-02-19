@@ -18,7 +18,7 @@
   },
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
-    "prettier/prettier": ["error", { "printWidth": 80 }],
+    "prettier/prettier": "error",
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off",
     "react/jsx-uses-react": "off",

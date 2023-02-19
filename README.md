@@ -1409,7 +1409,119 @@ render() {
   }
 ```
 
+#### 如何编写 CSS
 
+CSS 的设计不是为组件化而生的, 在组件化中选择合适的 CSS 解决方案应该符合以下条件：
+
+
+
+- 拥有局部作用域的 css, 不会污染其它组件的样式
+- 可以编写动态的 css, 可以获得当前组件的一些状态, 根据状态生成不同的样式
+- 支持原声 css 所有特性, 动画、伪类、媒体查询...
+- 编写方便
+
+###### 内联样式
+
+**JSX 不支持直接在内联 style 中使用字符串 ,需要使用对象的变量形式(🛟)**
+
+- 对象属性需要以驼峰命名, 不支持原生 -(font-size) 写法
+- 无法编写某些样式写法(伪类、伪元素), js 中没有 css 样式提示
+- 代码混乱, 在 js 中编写样式
+
+###### CSS Module
+
+CSS Module 并不是 React 特有的解决方案, 而是所有使用了类似 webpack 的打包构建工具的配置环境下都可以使用, 如果在其它项目构建工具中使用它, 则需要进行配置, 如：webpack.config.js `modules:true`
+
+**React 脚手架和 Vite 默认内置该配置：**
+
+**.css、.scss、.less 等样式文件都需要修改成 .module.css、.module.scss、...,  之后引用进行使用**
+
+任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS Module。导入这样的文件会返回一个相应的模块对象
+
+```css
+/* example.module.css */
+.red {
+  color: red;
+}
+
+
+// App.tsx
+import classes from './example.module.css'
+<div className={classes.red}></div>
+
+// 最终生成 文件名称_类名_哈希值 - 保证唯一性
+<div class="App_red_42Iui"></div>
+```
+
+**🍇 CSS Module 适用于编写普通的 css 样式**
+
+CSS Module 缺点：
+
+- js 中引用的类名不能使用连接符(-,.red-color) js 不识别
+- 所有 className 都必须使用 `{style.className}的形式编写`
+- 不方便动态修改样式, 依然使用内联样式动态修改
+
+> Vite 🥥
+>
+> 如果 `css.modules.localsConvention` 设置开启了 camelCase 格式变量名转换（例如 `localsConvention: 'camelCaseOnly'`），可以使用按名导入
+>
+> ```js
+> // .apply-color -> applyColor(驼峰转化)
+> import { applyColor } from './example.module.css'
+> document.getElementById('foo').className = applyColor
+> ```
+
+
+
+###### CSS in JS
+
+**‘CSS in JS’是指一种模式, CSS 由 JS 生成, 而不是在外部文件定义(不是 React 的一部份, 而是由第三方库提供)**
+
+> React 认为 UI(HTML) 代码和业务逻辑(JavaScript)代码是很难分离的, 所以 React 选择将 UI 代码和业务逻辑代码放在一起, 通过 JSX 语法来描述 UI , 通过 JavaScript 语法来描述业务逻辑, 样式也是 UI 的一部份, 所以也写进 jsx 中(All in JS)
+
+**使用`styled-components`库进行 css in js 开发**
+
+**css in js 通过 js 赋予 css 更多的能力, 如：类似预处理器一样的样式嵌套、函数定义、逻辑服用、动态修改状态等, 通过 js 代码来赋予, 虽然 css 预处理器同样具备以上个别能力, 但是获取动态状态依然不是很好处理**(目前来说该方案是最受欢迎)
+
+> **styled.div`` 是调用函数的另外一种写法 == styled.div()**
+>
+> css in js 同样适用 css 预处理器的写法
+
+```js
+import styled from "styled-components";
+
+// styled.div 是一个返回React div 组件的函数(标签模板字符串)
+const HomeWrapper = styled.div`
+  width: 100%;
+  // 给子定义样式
+  .p-box{
+  	color:red;
+  	&：hover{
+  		font-size:22px;
+  	}
+  }
+`;
+
+<div>
+  CSS in JS
+	<p className="p-box"></p> // 子样式同样可以使用
+</div>
+// 替换为:          --- 将 div 标签替换为 styled.div`` 返回的组件 
+<HomeWrapper>CSS in JS</HomeWrapper>
+
+// fun`react is ${name} in all, .e.g. ${value} is a framework`
+// 输出:[
+//     [ 'react is ', ' in all, .e.g. ', ' is a framework' ],
+//     name,
+//     value
+//     ]
+// 以插入的变量位置对字符串进行分割
+
+```
+
+# 1534
+
+###### classnames 库
 
 ### Rudex 状态管理器使用 🥽
 

@@ -88,7 +88,13 @@ class UlList extends PureComponent<any, any> {
 
     this.state = {
       list,
+      isxr: false,
     };
+    setTimeout(() => {
+      this.setState({
+        isxr: true,
+      });
+    }, 0);
   }
   handleAdd() {
     const { list } = this.state;
@@ -120,17 +126,22 @@ class UlList extends PureComponent<any, any> {
         <button onClick={this.handleDelete}>删除</button>
 
         <TransitionGroup>
-          {this.state.list.map(({ name = "", id = "" }, index: number) => {
-            return (
-              <CSSTransition timeout={2000} classNames="group" key={id}>
-                <li style={{ transitionDelay: `${100 * index}ms` }}>
-                  {name} - {id}
-                </li>
-              </CSSTransition>
-            );
-          })}
+          {this.state.isxr &&
+            this.state.list.map(({ name = "", id = "" }, index: number) => {
+              return (
+                <CSSTransition timeout={2000} classNames="group" key={id}>
+                  <li style={{ transitionDelay: `${100 * index}ms` }}>
+                    {name} - {id}
+                  </li>
+                </CSSTransition>
+              );
+            })}
         </TransitionGroup>
       </>
     );
   }
 }
+
+// 如果你按照上面的代码实现，但没有看到子元素的延迟进入效果，可能是因为首次渲染时，TransitionGroup 会将所有子元素一次性渲染出来，导致延迟效果不生效。
+
+// 为了解决这个问题，可以在 MyComponent 组件的 state 中添加一个 shouldAnimate 属性，用于控制 TransitionGroup 是否渲染子元素。在组件挂载后，先将 shouldAnimate 设为 false，等待一定时间后再将其设为 true，这样可以让 TransitionGroup 一开始不渲染子元素，等待一段时间后再开始渲染。
