@@ -1519,11 +1519,104 @@ const HomeWrapper = styled.div`
 
 ```
 
-# 1534
+###### 接收传入的 props
+
+css in js 可以接受由外部传入的 props, 如:
+
+**`<HomeWrapper color={color} size={size}>CSS in JS</HomeWrapper>`**
+
+**- 通过 attrs 给模板属性提供默认值**
+
+**- 通过定义 variables.ts 定义统一的变量风格(推荐)**
+
+**- 支持样式继承**
+
+**使用 styled-components - ThemeProvider 在最顶层定义变量进行传递继承**
+
+```js
+const HomeWrapper = styled.div`
+  // 使用模板字符串传入一个回调函数并接收一个 porps 形参
+  width: `${porps=>props.size}px`;
+  
+`;
+
+// attrs 定义传入 js 变量的默认值
+const HomeWrappe = styled.div.attrs(props=>({
+  size:props.size || 50
+}))`
+  width: `${porps=>props.size}px`;
+`
+  
+  
+// variables.ts
+export const appBg = '#ffc673'
+
+// styled 文件
+import { appBg } from 'variables.ts'
+const HomeWrappe = styled.div`
+  color:`appBg`
+`
+  
+  
+// styled-components
+import { ThemeProvider } from 'styled-components'
+
+<ThemeProvider theme={{color:red}}>
+	<App>
+  	<Bpp />
+  </App>
+</ThemeProvider>
+
+// Bpp.tsx styled
+const BppStyled = styled.div`
+	bpp{
+		color:`${props=>props.theme.color}`
+	}
+`
+    
+    
+// 继承 HomeWrapper 样式 - 继承 div 组件属性样式 
+const Cpp = styled(HomeWrapper)`
+color:xxx
+// 继承 width
+`
+```
+
+
 
 ###### classnames 库
 
+`pnpm add classnames`
+
+与 vue 模板语法相似:
+
+- `classNames('foo',{bar:true})` // foo bar
+
+- `classNames('foo',{bar:false})` // foo
+
+- `classNames({foo:true},{bar:true})` // foo bar
+
+- `classNames({foo:true,bar:true}) ` // foo bar
+
+- `classNames(['aaa',{foo:true,bar:true}])`
+
+- `classNames(null,false,undefind,0,1,{bar:null})` // 1
+
+- ... ...
+
+  ```js
+  import _c from 'classnames'
+  className={_c(xxx,{yyy:false})}
+  ```
+
+  
+
 ### Rudex 状态管理器使用 🥽
+
+纯函数：
+
+- 确定的输入一定产生确定的输出(函数相同的输入需要产生相同的输出)
+- 函数在执行过程中不能产生副作用
 
 ### React Router 6.x 路由
 
